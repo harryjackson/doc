@@ -29,11 +29,11 @@ void permute(char *a, int l, int r) {
 }
 
 int main(void) {
+  size_t i = 0;
   char str[] = "ABCDEFGHIJ";
   int n = strlen(str);
   permute(str, 0, n-1);
 
-  size_t i = 0;
   for(i = 0; i < TEN_FACTORIAL; i++) {
     printf("%.10s\n", AllCombos[i]);
   }
