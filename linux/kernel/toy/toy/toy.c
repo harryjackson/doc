@@ -35,7 +35,7 @@ static struct miscdevice toy_device = {
 
 //static int CPU_IDS[64] = {0};
 static int toy_open(struct inode *inodep, struct file *filep) {
-  int this_cpu = smp_processor_id();
+  int this_cpu = get_cpu();
   printk(KERN_INFO "open: called on CPU:%d\n", this_cpu);
   if(this_cpu == param_cpu_id) {
     printk(KERN_INFO "open: is on requested CPU: %d\n", smp_processor_id());
@@ -43,10 +43,11 @@ static int toy_open(struct inode *inodep, struct file *filep) {
   else {
     printk(KERN_INFO "open: not on requested CPU:%d\n", smp_processor_id());
   }
+  put_cpu();
   return 0;
 }
 static ssize_t toy_read(struct file *filep, char *buffer, size_t len, loff_t *offset){
-  int this_cpu = smp_processor_id();
+  int this_cpu = get_cpu();
   printk(KERN_INFO "read: called on CPU:%d\n", this_cpu);
   if(this_cpu == param_cpu_id) {
     printk(KERN_INFO "read: is on requested CPU: %d\n", smp_processor_id());
@@ -54,10 +55,11 @@ static ssize_t toy_read(struct file *filep, char *buffer, size_t len, loff_t *of
   else {
     printk(KERN_INFO "read: not on requested CPU:%d\n", smp_processor_id());
   }
+  put_cpu();
   return 0;
 }
 static ssize_t toy_write(struct file *filep, const char *buffer, size_t len, loff_t *offset){
-  int this_cpu = smp_processor_id();
+  int this_cpu = get_cpu();
   printk(KERN_INFO "write called on CPU:%d\n", this_cpu);
   if(this_cpu == param_cpu_id) {
     printk(KERN_INFO "write: is on requested CPU: %d\n", smp_processor_id());
@@ -65,10 +67,11 @@ static ssize_t toy_write(struct file *filep, const char *buffer, size_t len, lof
   else {
     printk(KERN_INFO "write: not on requested CPU:%d\n", smp_processor_id());
   }
+  put_cpu();
   return 0;
 }
 static int toy_release(struct inode *inodep, struct file *filep){
-  int this_cpu = smp_processor_id();
+  int this_cpu = get_cpu();
   printk(KERN_INFO "release called on CPU:%d\n", this_cpu);
   if(this_cpu == param_cpu_id) {
     printk(KERN_INFO "release: is on requested CPU: %d\n", smp_processor_id());
@@ -76,36 +79,9 @@ static int toy_release(struct inode *inodep, struct file *filep){
   else {
     printk(KERN_INFO "release: not on requested CPU:%d\n", smp_processor_id());
   }
+  put_cpu();
   return 0;
 }
-
-
-/*static void foo(void *cpu) {
-  int arg;
-  int want_cpu;
-  int this_cpu;
-  arg = (uintptr_t)cpu;
-  want_cpu = 1;
-  this_cpu = smp_processor_id();
-  if(this_cpu == want_cpu) {
-    bar(NULL);
-    printk(KERN_INFO "foo called with matching CPU: %d\n", arg);
-  }
-  else {
-    printk(KERN_INFO "foo called with non matching CPU: %d\n", arg);
-    //smp_call_function_single(a,foo,arg,1);
-  }
-}
-
-static void bar(void *arg) {
-  int a;
-  a = (uintptr_t)arg;
-  printk(KERN_INFO "bar entered with arg: %d\n", a);
-  CPU_IDS[a] += 1;
-  printk(KERN_INFO "bar called on CPU: %d count: %d\n", a, CPU_IDS[a]);
-  //smp_call_function_single(a,foo,arg,1);
-}
-*/
 
 static int __init toy_init(void) {
   int cpu_id;
